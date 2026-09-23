@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+__marimo__/
+output/
+_site/
+build/

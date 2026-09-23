@@ -1,0 +1,4 @@
+/* Hide the "made with marimo" badge in the exported web app */
+[data-testid="watermark"] {
+  display: none !important;
+}
