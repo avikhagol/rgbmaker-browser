@@ -1,19 +1,30 @@
 {
-  "background_color": "#ffffff",
-  "display": "standalone",
+  "name": "RGBMaker",
+  "short_name": "RGBMaker",
+  "description": "Radio-optical composite images (ROR, IOU, optical RGB with contours) in the browser",
   "icons": [
     {
+      "src": "android-chrome-192x192.png",
       "sizes": "192x192",
-      "src": "/android-chrome-192x192.png",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
+      "src": "android-chrome-512x512.png",
       "sizes": "512x512",
-      "src": "/android-chrome-512x512.png",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
-  "name": "marimo",
-  "short_name": "marimo",
-  "theme_color": "#ffffff"
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
 }

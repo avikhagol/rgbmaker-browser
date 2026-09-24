@@ -4,3 +4,4 @@ __marimo__/
 output/
 _site/
 build/
+apply_changes.py

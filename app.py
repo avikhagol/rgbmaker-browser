@@ -514,7 +514,7 @@ def _(MODES, get_custom, image_with_download, mo, mode):
     # Custom mode result (kept until the next "Make custom image")
     _res = get_custom()
     mo.stop(mode.value != MODES[2] or _res is None)
-    _head = f"### Custom image: {_res['target']}"
+    _head = f"### {_res['target']}"
     if _res["scaling"]:
         _head += f"\n\nRGB-C colour scaling: **{_res['scaling']}**"
     _blocks = [
@@ -1045,7 +1045,7 @@ def _(
         return np.sqrt(np.clip((data - lo) / (hi - lo), 0.0, 1.0))
 
     SCALINGS = [
-        "automatic: ROR / IOU / Optical",
+        "automatic",
         "ROR (normalise + sqrt from 0.1σ)",
         "IOU (sqrt · sqrt · log)",
         "Optical (sqrt)",

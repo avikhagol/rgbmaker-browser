@@ -25,6 +25,11 @@ jobs:
       - name: Export notebook to WebAssembly HTML
         run: uvx marimo export html-wasm app.py -o _site --mode run
 
+      # marimo writes a generic manifest ("A Marimo App") and its own icons;
+      # set the RGBMaker name and logo (see branding/postexport.py).
+      - name: Apply RGBMaker branding
+        run: python3 branding/postexport.py _site
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
