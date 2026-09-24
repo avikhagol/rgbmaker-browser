@@ -1159,7 +1159,7 @@ def _(CONTOUR_SURVEYS, CUSTOM_HIPS, IMAGE_SURVEYS, NO_CHANNEL, SCALINGS, mo):
     _cont = list(CONTOUR_SURVEYS)
 
     def _hips_box():
-        return mo.ui.text(placeholder="HiPS ID, used when “Custom HiPS ID…” is chosen", full_width=True)
+        return mo.ui.text(placeholder="custom HiPS ID", full_width=False)
 
     def _extra_box():
         return mo.ui.text(placeholder="optional extra contour HiPS ID", full_width=True)
