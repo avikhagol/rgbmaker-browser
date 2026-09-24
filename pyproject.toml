@@ -1,0 +1,5 @@
+# marimo reads [tool.marimo] from here (e.g. during `marimo export html-wasm`).
+# Dark is the default when the app is opened directly; when embedded on the
+# RAD@home site the iframe URL carries ?theme=light|dark to follow the site.
+[tool.marimo.display]
+theme = "dark"

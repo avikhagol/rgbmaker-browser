@@ -8,6 +8,32 @@
   checks the message origin on its side.
 -->
 <script>
+// After a new GitHub Pages deploy the asset file names change. A browser (or
+// the Pages CDN, which caches index.html for ~10 min) can still hold the old
+// index.html, whose lazily loaded chunks no longer exist, and marimo then shows
+// "Failed to fetch dynamically imported module". Reload once to pick up the
+// new build instead of showing the error.
+(function () {
+  var KEY = "rgbmaker-chunk-reload";
+  function reloadOnce(event) {
+    try {
+      var last = Number(sessionStorage.getItem(KEY) || 0);
+      if (Date.now() - last < 30000) return; // already tried recently: let the error show
+      sessionStorage.setItem(KEY, String(Date.now()));
+    } catch (_) { return; }
+    if (event && event.preventDefault) event.preventDefault();
+    var url = new URL(window.location.href);
+    url.searchParams.set("v", Date.now().toString(36)); // bypass cached index.html
+    window.location.replace(url.toString());
+  }
+  window.addEventListener("vite:preloadError", reloadOnce);
+  window.addEventListener("unhandledrejection", function (event) {
+    var msg = String((event.reason && event.reason.message) || event.reason || "");
+    if (/dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(msg)) reloadOnce(event);
+  });
+})();
+</script>
+<script>
 (function () {
   if (window.parent === window) return; // not embedded
 
@@ -68,8 +94,20 @@
   window.addEventListener("load", schedule);
   window.addEventListener("resize", schedule);
   window.addEventListener("message", function (event) {
-    if (event.source === window.parent && event.data && event.data.type === "iframe-height-request") post(true);
+    if (event.source !== window.parent || !event.data) return;
+    if (event.data.type === "iframe-height-request") post(true);
+    if (event.data.type === "theme") setTheme(event.data.theme);
   });
+
+  // Live theme switch from the parent site ({type: "theme", theme: "light"|"dark"}).
+  // The initial theme comes from ?theme= in the iframe URL, which marimo reads.
+  // For live changes marimo watches body[data-vscode-theme-kind] (its VS Code
+  // integration hook) and re-themes without reloading the app, so use that.
+  function setTheme(theme) {
+    if (theme !== "light" && theme !== "dark") return;
+    var apply = function () { document.body.dataset.vscodeThemeKind = "vscode-" + theme; };
+    if (document.body) apply(); else document.addEventListener("DOMContentLoaded", apply);
+  }
   if (!resizeObs) setInterval(schedule, 1000);
 })();
 </script>
