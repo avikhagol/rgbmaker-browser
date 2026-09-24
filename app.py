@@ -47,6 +47,40 @@ async def _(sys):
     return (IN_BROWSER,)
 
 
+@app.cell
+def _(mo):
+    # Result images: show a JPEG preview and offer the full PNG as a lazy download.
+    # In the browser build every image and eager download is inlined as base64, so
+    # showing the PNG *and* offering it for download shipped it twice; noisy sky
+    # images compress poorly as PNG, and two-panel figures went past marimo's
+    # 8 MB output limit. The download callable only runs when the button is clicked.
+    def image_with_download(png, filename, label, max_px=1600, quality=90):
+        """Return [preview image, download button] for a PNG given as bytes."""
+        import base64
+        import io
+
+        preview = png
+        try:
+            from PIL import Image
+
+            with Image.open(io.BytesIO(png)) as source:
+                rgb = source.convert("RGB")
+            rgb.thumbnail((max_px, max_px), Image.LANCZOS)
+            buf = io.BytesIO()
+            # 4:4:4 chroma keeps thin coloured contour lines and labels sharp
+            rgb.save(buf, format="JPEG", quality=quality, subsampling=0)
+            preview = "data:image/jpeg;base64," + base64.b64encode(buf.getvalue()).decode()
+        except Exception:
+            pass  # without Pillow, show the PNG itself
+        return [
+            mo.image(src=preview, width="100%"),
+            mo.download(data=lambda: png, filename=filename,
+                        mimetype="image/png", label=label),
+        ]
+
+    return (image_with_download,)
+
+
 @app.cell(hide_code=True)
 def _(IN_BROWSER, sys):
     import io
@@ -476,7 +510,7 @@ def _(
 
 
 @app.cell
-def _(MODES, get_custom, mo, mode):
+def _(MODES, get_custom, image_with_download, mo, mode):
     # Custom mode result (kept until the next "Make custom image")
     _res = get_custom()
     mo.stop(mode.value != MODES[2] or _res is None)
@@ -485,9 +519,8 @@ def _(MODES, get_custom, mo, mode):
         _head += f"\n\nRGB-C colour scaling: **{_res['scaling']}**"
     _blocks = [
         mo.md(_head),
-        mo.image(src=_res["png"], width="100%"),
-        mo.download(data=_res["png"], filename="custom_image.png",
-                    mimetype="image/png", label="Download custom_image.png"),
+        *image_with_download(_res["png"], "custom_image.png",
+                             "Download custom_image.png"),
     ]
     if _res["notes"]:
         _blocks.append(mo.callout(mo.md("\n".join(f"- {x}" for x in _res["notes"])), kind="warn"))
@@ -557,7 +590,7 @@ def _(cached_query, form, mo):
 
 
 @app.cell
-def _(MODES, images, info, mo, mode, otext, status):
+def _(MODES, image_with_download, images, info, mo, mode, otext, status):
     _titles = {
         "img1": "ROR: TGSS · DSS2 Red · NVSS (NVSS and TGSS contours)",
         "img2": "IOU: WISE 22 · DSS2 Red · GALEX NUV, and optical DSS2 IR · Red · Blue (TGSS contours)",
@@ -578,13 +611,9 @@ def _(MODES, images, info, mo, mode, otext, status):
         _blocks = []
         for _i, (_key, _png) in enumerate(images, start=1):
             _blocks.append(mo.md(f"### {_titles.get(_key, _key)}"))
-            _blocks.append(mo.image(src=_png, width="100%"))
-            _blocks.append(
-                mo.download(
-                    data=_png,
-                    filename=f"output_{_i}.png",
-                    mimetype="image/png",
-                    label=f"Download output_{_i}.png",
+            _blocks.extend(
+                image_with_download(
+                    _png, f"output_{_i}.png", f"Download output_{_i}.png"
                 )
             )
         _blocks.append(
@@ -906,15 +935,15 @@ def _(
     c_spidx,
     c_target,
     contour_png,
+    image_with_download,
     mo,
     mode,
 ):
     mo.stop(contour_png is None or mode.value != MODES[1])
     _blocks = [
         mo.md(f"### Composite contours: {c_target}"),
-        mo.image(src=contour_png, width="100%"),
-        mo.download(data=contour_png, filename="composite_contours.png",
-                    mimetype="image/png", label="Download composite_contours.png"),
+        *image_with_download(contour_png, "composite_contours.png",
+                             "Download composite_contours.png"),
     ]
     if c_notes:
         _blocks.append(mo.callout(mo.md("\n".join(f"- {x}" for x in c_notes)), kind="warn"))
