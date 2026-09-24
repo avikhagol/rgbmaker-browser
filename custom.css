@@ -2,3 +2,9 @@
 [data-testid="watermark"] {
   display: none !important;
 }
+
+/* Hide the "..." menu (top right). In run mode it only offers
+   "Download as HTML" and "Download as PNG". */
+[data-testid="notebook-actions-dropdown"] {
+  display: none !important;
+}
