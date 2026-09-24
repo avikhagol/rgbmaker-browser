@@ -1,0 +1,75 @@
+<!--
+  Included by marimo in the exported app (App(html_head_file="head.html"), run mode only).
+  When RGBMaker is embedded in an iframe (e.g. the RAD@home India /rgbmaker/ page),
+  report the app's content height to the parent page so it can size the iframe to fit:
+    parent.postMessage({type: "iframe-height", height: <px>}, "*")
+  The parent may also ask for a fresh value with {type: "iframe-height-request"}.
+  Only a height number is sent, so "*" as target origin leaks nothing; the parent
+  checks the message origin on its side.
+-->
+<script>
+(function () {
+  if (window.parent === window) return; // not embedded
+
+  var last = 0, queued = false, appEl = null;
+  var resizeObs = "ResizeObserver" in window ? new ResizeObserver(schedule) : null;
+
+  // marimo fills the viewport and scrolls inside #App, so the document height
+  // always equals the iframe height. Measure #App's children instead.
+  function contentHeight() {
+    var app = document.getElementById("App");
+    if (!app) return Math.ceil(document.documentElement.scrollHeight);
+    var cs = getComputedStyle(app);
+    var h = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    for (var i = 0; i < app.children.length; i++) {
+      var el = app.children[i], ecs = getComputedStyle(el);
+      if (ecs.position === "fixed" || ecs.position === "absolute") continue;
+      h += el.getBoundingClientRect().height + parseFloat(ecs.marginTop) + parseFloat(ecs.marginBottom);
+    }
+    return Math.ceil(h);
+  }
+
+  function post(force) {
+    queued = false;
+    var h = contentHeight();
+    if (!h || (!force && Math.abs(h - last) < 2)) return;
+    last = h;
+    window.parent.postMessage({ type: "iframe-height", height: h }, "*");
+  }
+
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(function () { post(false); });
+  }
+
+  function watchApp() {
+    var app = document.getElementById("App");
+    if (!app || app === appEl) return;
+    appEl = app;
+    if (resizeObs) {
+      resizeObs.observe(app);
+      for (var i = 0; i < app.children.length; i++) resizeObs.observe(app.children[i]);
+    }
+    schedule();
+  }
+
+  // #App is rendered by React after load, and its children can be replaced.
+  new MutationObserver(function (records) {
+    watchApp();
+    if (resizeObs && appEl) {
+      records.forEach(function (r) {
+        if (r.target === appEl) r.addedNodes.forEach(function (n) { if (n.nodeType === 1) resizeObs.observe(n); });
+      });
+    }
+    schedule();
+  }).observe(document.documentElement, { childList: true, subtree: true });
+
+  window.addEventListener("load", schedule);
+  window.addEventListener("resize", schedule);
+  window.addEventListener("message", function (event) {
+    if (event.source === window.parent && event.data && event.data.type === "iframe-height-request") post(true);
+  });
+  if (!resizeObs) setInterval(schedule, 1000);
+})();
+</script>
