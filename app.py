@@ -286,10 +286,10 @@ def _(FORM_BOX, MODES, mo, mode, x_target):
     mo.stop(mode.value != MODES[2])
     mo.md(f"""
     #### 2 · Target
-    **Your name** (shown on the image)  
+    **Your name** (shown on the image)
     {x_target["name"]}
 
-    **Target**: object name or FK5 J2000 coordinates  
+    **Target**: object name or FK5 J2000 coordinates
     {x_target["position"]}
 
     **Radius** (degrees, max 2) {x_target["radius"]} &nbsp; **Image size** {x_target["px"]}
@@ -303,21 +303,21 @@ def _(FORM_BOX, MODES, mo, mode, show_rgb_panel, x_rgb):
     mo.stop(mode.value != MODES[2] or not show_rgb_panel)
     mo.md(f"""
     #### 3 · RGB-C panel: colour composite with contours
-    **Red** {x_rgb["r"]}  
+    **Red** {x_rgb["r"]}
     {x_rgb["r_custom"]}
 
-    **Green** {x_rgb["g"]}  
+    **Green** {x_rgb["g"]}
     {x_rgb["g_custom"]}
 
-    **Blue** {x_rgb["b"]}  
+    **Blue** {x_rgb["b"]}
     {x_rgb["b_custom"]}
 
     **Colour scaling** {x_rgb["scaling"]}
 
     **Brightness** {x_rgb["brightness"]} &nbsp; **Contrast** {x_rgb["contrast"]}
 
-    **Contours**  
-    {x_rgb["contours"]}  
+    **Contours**
+    {x_rgb["contours"]}
     {x_rgb["contours_custom"]}
     """).style(FORM_BOX)
     return
@@ -329,13 +329,13 @@ def _(FORM_BOX, MODES, mo, mode, show_comp_panel, x_comp):
     mo.stop(mode.value != MODES[2] or not show_comp_panel)
     mo.md(f"""
     #### 4 · Composite contour panel: background with contours
-    **Background** {x_comp["bg"]}  
+    **Background** {x_comp["bg"]}
     {x_comp["bg_custom"]}
 
     **Brightness** {x_comp["brightness"]} &nbsp; **Contrast** {x_comp["contrast"]}
 
-    **Contours**  
-    {x_comp["contours"]}  
+    **Contours**
+    {x_comp["contours"]}
     {x_comp["contours_custom"]}
     """).style(FORM_BOX)
     return
@@ -349,7 +349,7 @@ def _(FORM_BOX, MODES, mo, mode, x_cset):
     #### 5 · Contour levels
     **Lowest contour** {x_cset["nsigma"]} × rms &nbsp; **Levels** {x_cset["nlev"]}
 
-    {x_cset["floors"]}  
+    {x_cset["floors"]}
     {x_cset["axes"]}
 
     Any HiPS ID from the [HiPS list](https://aladin.cds.unistra.fr/hips/list) that serves
@@ -624,10 +624,10 @@ def _(mo):
     _labels = list(CONTOUR_SURVEYS)
     cform = (
         mo.md(r"""
-        **Your name** (shown on the image)  
+        **Your name** (shown on the image)
         {name}
 
-        **Target**: object name or FK5 J2000 coordinates  
+        **Target**: object name or FK5 J2000 coordinates
         {position}
 
         **Radius** (degrees, max 2) {radius} &nbsp; **Image size** {px}
@@ -636,18 +636,18 @@ def _(mo):
 
         **Background image** {background}
 
-        **Contour surveys** (choose any number)  
+        **Contour surveys** (choose any number)
         {surveys}
 
         **Extra contour survey** (optional): any HiPS ID from the
-        [HiPS list](https://aladin.cds.unistra.fr/hips/list), e.g. `CDS/P/NVSS`  
+        [HiPS list](https://aladin.cds.unistra.fr/hips/list), e.g. `CDS/P/NVSS`
         {custom}
 
         **Lowest contour** {nsigma} × rms &nbsp; **Levels** {nlev}
 
-        {floors}  
-        {catalog}  
-        {spidx_text}  
+        {floors}
+        {catalog}
+        {spidx_text}
         {axes}
         """)
         .batch(
@@ -655,13 +655,13 @@ def _(mo):
             position=mo.ui.text(value="speca", full_width=True),
             radius=mo.ui.number(start=0.01, stop=2.0, step=0.01, value=0.12),
             px=mo.ui.dropdown(options=["240", "480", "720"], value="480"),
-            layout=mo.ui.dropdown(options=["Two panels (rgbmaker imagesopt=2)", "Single panel"], value="Two panels (rgbmaker imagesopt=2)"),
+            layout=mo.ui.dropdown(options=["Two panels", "Single panel"], value="Two panels"),
             background=mo.ui.dropdown(options=BACKGROUNDS, value="DSS2 Red"),
             surveys=mo.ui.multiselect(options=_labels, value=_labels[:3], full_width=True),
             custom=mo.ui.text(placeholder="e.g. CDS/P/WENSS", full_width=True),
             nsigma=mo.ui.number(start=1, stop=50, step=0.5, value=5),
             nlev=mo.ui.number(start=1, stop=12, step=1, value=4),
-            floors=mo.ui.checkbox(value=True, label="TGSS and NVSS: use rgbmaker's fixed lowest contour (15 and 1.5 mJy/beam) instead of N × rms"),
+            floors=mo.ui.checkbox(value=True, label="TGSS and NVSS: use fixed lowest contour (15 and 1.5 mJy/beam) instead of N × rms"),
             catalog=mo.ui.checkbox(value=True, label="Mark TGSS and NVSS catalogue sources (VizieR)"),
             spidx_text=mo.ui.checkbox(value=False, label="Write spectral index values on the plot (otherwise sources are numbered; values are in the table below)"),
             axes=mo.ui.checkbox(value=False, label="Show RA/Dec axes"),
@@ -1016,10 +1016,10 @@ def _(
         return np.sqrt(np.clip((data - lo) / (hi - lo), 0.0, 1.0))
 
     SCALINGS = [
-        "rgbmaker (automatic: ROR / IOU / Optical)",
-        "rgbmaker ROR (normalise + sqrt from 0.1σ)",
-        "rgbmaker IOU (sqrt · sqrt · log)",
-        "rgbmaker Optical (sqrt)",
+        "automatic: ROR / IOU / Optical",
+        "ROR (normalise + sqrt from 0.1σ)",
+        "IOU (sqrt · sqrt · log)",
+        "Optical (sqrt)",
         "Percentile sqrt (1–99.5 %)",
     ]
 
@@ -1174,7 +1174,7 @@ def _(CONTOUR_SURVEYS, CUSTOM_HIPS, IMAGE_SURVEYS, NO_CHANNEL, SCALINGS, mo):
     x_cset = mo.ui.dictionary(dict(
         nsigma=mo.ui.number(start=1, stop=50, step=0.5, value=5),
         nlev=mo.ui.number(start=1, stop=12, step=1, value=4),
-        floors=mo.ui.checkbox(value=True, label="TGSS and NVSS: use rgbmaker's fixed lowest contour (15 and 1.5 mJy/beam) instead of N × rms"),
+        floors=mo.ui.checkbox(value=True, label="TGSS and NVSS: fixed lowest contour (15 and 1.5 mJy/beam) instead of N × rms"),
         axes=mo.ui.checkbox(value=False, label="Show RA/Dec axes"),
     ))
     x_run = mo.ui.run_button(label="Make custom image", kind="success")
