@@ -1,7 +1,12 @@
 import marimo
 
 __generated_with = "0.25.0"
-app = marimo.App(width="medium", app_title="RGBMaker", css_file="custom.css")
+app = marimo.App(
+    width="medium",
+    app_title="RGBMaker",
+    css_file="custom.css",
+    html_head_file="head.html",
+)
 
 
 @app.cell
