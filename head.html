@@ -95,9 +95,22 @@
   window.addEventListener("resize", schedule);
   window.addEventListener("message", function (event) {
     if (event.source !== window.parent || !event.data) return;
-    if (event.data.type === "iframe-height-request") post(true);
+    if (event.data.type === "iframe-height-request") { hideScrollbar(); post(true); }
     if (event.data.type === "theme") setTheme(event.data.theme);
   });
+
+  // The parent asking for our height means it sizes the iframe to fit, so the
+  // app's own scroll area (#App) is redundant: hide its scrollbar.
+  var noScroll = false;
+  function hideScrollbar() {
+    if (noScroll) return;
+    noScroll = true;
+    var style = document.createElement("style");
+    style.textContent = "html,body{overflow:hidden!important}" +
+      "#App{overflow-y:hidden!important;scrollbar-width:none}" +
+      "#App::-webkit-scrollbar{display:none}";
+    document.head.appendChild(style);
+  }
 
   // Live theme switch from the parent site ({type: "theme", theme: "light"|"dark"}).
   // The initial theme comes from ?theme= in the iframe URL, which marimo reads.

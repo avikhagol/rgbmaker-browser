@@ -680,7 +680,6 @@ def _(mo):
         **Lowest contour** {nsigma} × rms &nbsp; **Levels** {nlev}
 
         {floors}
-        {catalog}
         {spidx_text}
         {axes}
         """)
@@ -696,8 +695,7 @@ def _(mo):
             nsigma=mo.ui.number(start=1, stop=50, step=0.5, value=5),
             nlev=mo.ui.number(start=1, stop=12, step=1, value=4),
             floors=mo.ui.checkbox(value=True, label="TGSS and NVSS: use fixed lowest contour (15 and 1.5 mJy/beam) instead of N × rms"),
-            catalog=mo.ui.checkbox(value=True, label="Mark TGSS and NVSS catalogue sources (VizieR)"),
-            spidx_text=mo.ui.checkbox(value=False, label="Write spectral index values on the plot (otherwise sources are numbered; values are in the table below)"),
+            spidx_text=mo.ui.checkbox(value=False, label="Write spectral index values on the plot"),
             axes=mo.ui.checkbox(value=False, label="Show RA/Dec axes"),
         )
         .form(submit_button_label="Make composite contour image", bordered=True)
@@ -794,7 +792,8 @@ def _(
             _circ = (f"1=CONTAINS(POINT('ICRS',RAJ2000,DEJ2000),"
                      f" CIRCLE('ICRS',{ra},{dec},{radius * 1.42}))")
             cats = []
-            if _v["catalog"]:
+            # if _v["catalog"]:
+            if _v.get("catalog", True):
                 for cat, col, q in [
                     ("TGSS", "magenta", 'SELECT RAJ2000, DEJ2000, Maj, Min, PA, Stotal, e_Stotal FROM "J/A+A/598/A78/table3" WHERE ' + _circ),
                     ("NVSS", "cyan", 'SELECT RAJ2000, DEJ2000, MajAxis, MinAxis, PA, "S1.4", "e_S1.4" FROM "VIII/65/nvss" WHERE ' + _circ),
@@ -865,7 +864,7 @@ def _(
                         txt = short if boxed_values_only else full
                     else:
                         txt = f"α{sid}"
-                    ax.annotate(txt, xy=(x, y), xytext=(1, -40), textcoords="offset points",
+                    ax.annotate(txt, xy=(x, y), xytext=(1, -27), textcoords="offset points",
                                 ha="right", va="top", color="black", **kw)
 
             def draw_contours(ax):
@@ -919,7 +918,7 @@ def _(
                 drawn = draw_contours(ax)
                 draw_catalogues(ax)
                 draw_spidx(ax, boxed_values_only=False)
-                credit(ax)
+                # credit(ax)
                 finish(ax, "-".join(drawn + [_bgtitle]))
 
             _buf = _io.BytesIO()
